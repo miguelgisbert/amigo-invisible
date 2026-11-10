@@ -29,6 +29,7 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
   const [email, setEmail] = useState<string | null>(null);
   const [website, setWebsite] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [errorContact, setErrorContact] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -72,6 +73,7 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
   function openDialog() {
     setSent(false);
     setError(null);
+    setErrorContact(null);
     setOpen(true);
   }
 
@@ -84,11 +86,13 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
 
     if (message.trim().length < 5) {
       setError(copy.messageShort);
+      setErrorContact(null);
       return;
     }
 
     setSending(true);
     setError(null);
+    setErrorContact(null);
 
     try {
       const response = await fetch("/api/feedback", {
@@ -122,17 +126,20 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
 
       if (!emailResult.ok) {
         console.error("Feedback EmailJS failed:", emailResult.error);
-        setError(copy.notSent(feedbackContactEmail()));
+        setError(copy.notSentPrefix);
+        setErrorContact(feedbackContactEmail());
         return;
       }
 
       setSent(true);
       setMessage("");
       setError(null);
+      setErrorContact(null);
     } catch (submitError) {
       setError(
         submitError instanceof Error ? submitError.message : copy.error,
       );
+      setErrorContact(null);
     } finally {
       setSending(false);
     }
@@ -145,10 +152,10 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
         onClick={openDialog}
         aria-haspopup="dialog"
         className={cn(
-          "mx-auto block max-w-3xl text-center text-lg leading-7 font-medium underline decoration-1 underline-offset-4 transition sm:text-xl",
+          "mx-auto block max-w-2xl cursor-pointer text-center text-sm leading-6 font-medium transition sm:text-base",
           tone === "dark"
-            ? "text-paper/85 hover:text-paper"
-            : "text-ink/80 hover:text-ink",
+            ? "text-paper/80 hover:text-paper"
+            : "text-ink/75 hover:text-pine",
         )}
       >
         {copy.inviteA}{" "}
@@ -211,7 +218,29 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
                   className="flex gap-2 rounded-xl border border-berry/20 bg-berry/8 px-3 py-2.5 text-xs leading-5 text-berry-deep"
                 >
                   <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
-                  <p>{error}</p>
+                  <p>
+                    {error}
+                    {errorContact ? (
+                      <>
+                        {" "}
+                        <a
+                          href={`mailto:${errorContact}?subject=${encodeURIComponent(
+                            `[amigo-invisible] ${copy.kinds[kind]}`,
+                          )}&body=${encodeURIComponent(
+                            `${message}${
+                              typeof window !== "undefined"
+                                ? `\n\nPàgina: ${window.location.pathname}`
+                                : ""
+                            }`,
+                          )}`}
+                          className="font-semibold underline underline-offset-2"
+                        >
+                          {errorContact}
+                        </a>
+                        .
+                      </>
+                    ) : null}
+                  </p>
                 </div>
               ) : null}
 

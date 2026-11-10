@@ -109,6 +109,9 @@ test.describe("public experience", () => {
     await expect(
       page.getByText("No s'ha pogut enviar la notificació"),
     ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "info@miguelgisbert.dev" }),
+    ).toHaveAttribute("href", /^mailto:info@miguelgisbert.dev/);
     await page.getByRole("button", { name: "Tanca" }).click();
     await expect(page.getByRole("dialog")).toBeHidden();
   });

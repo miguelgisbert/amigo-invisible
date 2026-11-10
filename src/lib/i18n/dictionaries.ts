@@ -115,8 +115,8 @@ const ca = {
     thanks: "Gràcies! Ho he rebut.",
     close: "Tanca",
     error: "No s'ha pogut enviar. Torna-ho a provar.",
-    notSent: (contact: string) =>
-      `No s'ha pogut enviar la notificació. El missatge s'ha desat; si vols, escriu-me directament a ${contact}.`,
+    notSentPrefix:
+      "No s'ha pogut enviar la notificació. El missatge s'ha desat; si vols, escriu-me directament a",
     messageShort: "Escriu una mica més de text.",
     messageLong: "El missatge és massa llarg.",
     emailInvalid: "El correu no sembla vàlid.",
@@ -558,8 +558,8 @@ const es: typeof ca = {
     thanks: "¡Gracias! Lo he recibido.",
     close: "Cerrar",
     error: "No se ha podido enviar. Vuelve a intentarlo.",
-    notSent: (contact: string) =>
-      `No se ha podido enviar la notificación. El mensaje se ha guardado; si quieres, escríbeme directamente a ${contact}.`,
+    notSentPrefix:
+      "No se ha podido enviar la notificación. El mensaje se ha guardado; si quieres, escríbeme directamente a",
     messageShort: "Escribe algo más de texto.",
     messageLong: "El mensaje es demasiado largo.",
     emailInvalid: "El correo no parece válido.",

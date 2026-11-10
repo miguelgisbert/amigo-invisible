@@ -22,7 +22,7 @@ export function SiteFooter({
     <div className={className}>
       <section
         className={cn(
-          "border-y px-5 py-8 sm:px-8 sm:py-10",
+          "border-y px-5 py-6 sm:px-8 sm:py-8",
           dark
             ? "border-paper/10 bg-paper/5"
             : "border-ink/10 bg-mint/45",
