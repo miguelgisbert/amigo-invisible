@@ -13,7 +13,7 @@ import type { Locale } from "./i18n/config";
 import { getDictionary } from "./i18n/dictionaries";
 
 const scryptAsync = promisify(scrypt);
-const sessionCookieName = "amigo_session";
+export const sessionCookieName = "amigo_session";
 const sessionTtlMs = 1000 * 60 * 60 * 24 * 30;
 
 export type AuthUser = {

@@ -75,7 +75,7 @@ export function createDrawSchema(locale: Locale) {
     }
 
     return value;
-  }, z.number().finite(server.budgetInvalid).min(0, server.budgetNegative).max(1_000_000, server.budgetTooHigh).nullable());
+  }, z.number({ error: server.budgetInvalid }).finite(server.budgetInvalid).min(0, server.budgetNegative).max(1_000_000, server.budgetTooHigh).nullable());
 
   const participantSchema = z
     .object({

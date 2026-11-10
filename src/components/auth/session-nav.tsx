@@ -12,7 +12,7 @@ export function SessionNav() {
     return (
       <span
         aria-hidden="true"
-        className="h-9 w-20 animate-pulse rounded-full bg-ink/5"
+        className="h-8 w-14 animate-pulse rounded-full bg-ink/5"
       />
     );
   }

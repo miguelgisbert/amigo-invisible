@@ -441,30 +441,6 @@ export function AdminDashboard({ adminToken }: { adminToken: string }) {
       </header>
 
       <main className="mx-auto max-w-5xl px-5 pb-6 sm:px-8">
-        {created ? (
-          <div className="animate-rise mt-6 flex flex-col gap-4 rounded-3xl border border-pine/20 bg-mint/65 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-            <div className="flex gap-3">
-              <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-pine" />
-              <div>
-                <p className="text-sm font-semibold">
-                  {dict.admin.createdTitle}
-                </p>
-                <p className="mt-1 text-xs leading-5 text-ink/60">
-                  {dict.admin.createdBody}
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => copyText(currentAdminUrl(), dict.admin.panelLink)}
-              className="btn btn-sm btn-dark shrink-0"
-            >
-              <CopyIcon className="h-4 w-4" />
-              {dict.admin.saveLink}
-            </button>
-          </div>
-        ) : null}
-
         <section className="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-cream">
           <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink/10 p-5 sm:p-6">
             <div className="min-w-0">
@@ -530,7 +506,35 @@ export function AdminDashboard({ adminToken }: { adminToken: string }) {
           </div>
         </section>
 
-        <section className="mt-12">
+        {created ? (
+          <div className="animate-rise mt-6 flex flex-col gap-4 rounded-2xl border border-pine/20 bg-mint/65 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <div className="flex gap-3">
+              <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-pine" />
+              <div>
+                <p className="text-sm font-semibold">
+                  {dict.admin.createdTitle}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-ink/60">
+                  {dict.admin.createdBody}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a href="#participants" className="btn btn-sm btn-dark shrink-0">
+                <ChatIcon className="h-4 w-4" />
+                {dict.admin.createdAction}
+              </a>
+              <Link
+                href={href("/sortejos")}
+                className="btn btn-sm btn-ghost shrink-0"
+              >
+                {dict.admin.createdSecondary}
+              </Link>
+            </div>
+          </div>
+        ) : null}
+
+        <section id="participants" className="mt-12 scroll-mt-24">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold tracking-[-0.01em] sm:text-2xl">

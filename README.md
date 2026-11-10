@@ -125,15 +125,59 @@ En obrir WhatsApp no es marca el missatge com enviat automàticament: el panell 
 - Les exclusions són mútues.
 - S'utilitza l'algorisme de camins augmentants de Kuhn amb ordre i llistes aleatoritzades amb `crypto.randomInt`, de manera que el resultat és impredictible i el càlcul és polinomial.
 
+## Proves
+
+El projecte inclou proves unitàries, d'integració i end-to-end. Les proves d'integració i E2E utilitzen una base de dades Postgres de test, mai la de producció.
+
+### Base de dades de test
+
+```bash
+npm run test:db:up     # Postgres de test al port 5433 via Docker Compose
+npm run test:db:setup  # aplica db/schema.sql i buida les taules
+```
+
+Si no tens Docker Compose, aixeca un Postgres al port `5433` amb base de dades `amigo_test`, usuari `postgres` i contrasenya `postgres`, o defineix `TEST_DATABASE_URL`.
+
+### Executar les proves
+
+```bash
+npm run test:unit         # algorisme, format, missatges, validació, auth i i18n
+npm run test:integration  # auth, sessions, sortejos, panell, reveal, redraw i enviament
+npm run test:e2e          # build + test DB + Playwright (Chromium mòbil)
+npm run test:coverage     # cobertura de les llibreries (necessita la test DB)
+npm run test:all          # unit + integració + E2E
+```
+
+`test:coverage` executa també les proves d'integració, així que necessita la base de dades de test en marxa.
+
+L'E2E aixeca l'aplicació en producció al port `3101`, amb la base de dades de test, i cobreix:
+
+- registre, login, logout i portada d'autenticació;
+- assistent de creació, datepicker, importació de contactes (API simulada), canvi d'idioma sense perdre dades;
+- exclusions, plantilla, creació del sorteig i banner de sorteig creat;
+- llistat de participants, emparellaments ocults/visibles, enviament per WhatsApp amb confirmació i marcatge manual;
+- panell “Els meus sortejos”, accés per token sense sessió i pàgina privada del participant;
+- PWA (manifest, icones, service worker), 404 i absència d'overflow horitzontal a 320, 390, 768 i 1440 px.
+
+El CI de GitHub Actions executa lint, typecheck, proves unitàries, d'integració i Playwright amb un servei Postgres.
+
 ## Scripts
 
 ```bash
-npm run dev        # desenvolupament
-npm run build      # build de producció
-npm run start      # servidor de producció
-npm run db:migrate # aplica db/schema.sql
-npm run lint       # ESLint
-npm run typecheck  # TypeScript
+npm run dev              # desenvolupament
+npm run build            # build de producció
+npm run start            # servidor de producció
+npm run db:migrate       # aplica db/schema.sql
+npm run lint             # ESLint
+npm run typecheck        # TypeScript
+npm run test:unit        # proves unitàries
+npm run test:integration # proves d'integració
+npm run test:e2e         # proves end-to-end
+npm run test:coverage    # cobertura (amb test DB)
+npm run test:all         # totes les proves
+npm run test:db:up       # arrenca la test DB
+npm run test:db:setup    # migra i buida la test DB
+npm run test:db:down     # atura la test DB
 ```
 
 ## Desplegament
@@ -216,4 +260,12 @@ src/
     message.ts               plantilles i placeholders
     tokens.ts                tokens criptogràfics
     validation.ts            esquemes Zod
+tests/
+  e2e/                       Playwright
+  integration/               Vitest + Postgres
+  setup-db.mjs               preparació de la base de dades de test
+.github/workflows/ci.yml     CI
+docker-compose.yml           Postgres de test
+playwright.config.ts
+vitest.config.mts
 ```
