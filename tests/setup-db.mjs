@@ -44,7 +44,7 @@ try {
   );
   await sql.unsafe(schema);
   await sql`
-    truncate table exclusions, participants, draws, sessions, users
+    truncate table feedback, exclusions, participants, draws, sessions, users
     restart identity cascade
   `;
   console.log("Base de dades de test preparada.");

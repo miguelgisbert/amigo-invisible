@@ -59,8 +59,22 @@ function escapeHtml(value: string): string {
     .replaceAll("'", "&#39;");
 }
 
-function buildHtml(message: string, link: string, locale: Locale): string {
+type EmailChrome = {
+  heading?: string;
+  buttonLabel?: string;
+  footer?: string;
+};
+
+function buildHtml(
+  message: string,
+  link: string,
+  locale: Locale,
+  chrome?: EmailChrome,
+): string {
   const dict = getDictionary(locale);
+  const heading = chrome?.heading ?? dict.email.senderName;
+  const buttonLabel = chrome?.buttonLabel ?? dict.email.openLink;
+  const footer = chrome?.footer ?? dict.email.footer;
   const escapedLink = escapeHtml(link);
   const textWithLinks = escapeHtml(message)
     .split(escapedLink)
@@ -75,16 +89,16 @@ function buildHtml(message: string, link: string, locale: Locale): string {
     <div style="padding:28px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
       <div style="max-width:560px;margin:0 auto;">
         <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#0b2a21;margin:0 0 18px 4px;">
-          ${escapeHtml(dict.email.senderName)}
+          ${escapeHtml(heading)}
         </div>
         <div style="background:#fffdf7;border:1px solid #e2dccb;border-radius:24px;padding:28px 24px;">
           <div style="font-size:16px;line-height:1.75;color:#0b2a21;">${textWithLinks}</div>
-          <a href="${escapedLink}" style="display:inline-block;margin-top:26px;background:#e63b2e;color:#fffdf7;text-decoration:none;font-weight:600;font-size:15px;padding:14px 22px;border-radius:999px;">
-            ${escapeHtml(dict.email.openLink)}
+          <a href="${escapedLink}" style="display:inline-block;margin-top:26px;background:#195a46;color:#fffdf7;text-decoration:none;font-weight:600;font-size:15px;padding:14px 22px;border-radius:999px;">
+            ${escapeHtml(buttonLabel)}
           </a>
         </div>
         <p style="margin:16px 6px 0;font-size:12px;line-height:1.6;color:#5d6b62;">
-          Aquest correu és privat. L'enllaç mostra el teu emparellament i no l'hauries de compartir.
+          ${escapeHtml(footer)}
         </p>
       </div>
     </div>
@@ -98,6 +112,9 @@ export async function sendEmail(input: {
   text: string;
   link: string;
   locale: Locale;
+  heading?: string;
+  buttonLabel?: string;
+  footer?: string;
 }): Promise<EmailResult> {
   const dict = getDictionary(input.locale);
   const status = getEmailStatus();
@@ -111,7 +128,11 @@ export async function sendEmail(input: {
     };
   }
 
-  const html = buildHtml(input.text, input.link, input.locale);
+  const html = buildHtml(input.text, input.link, input.locale, {
+    heading: input.heading,
+    buttonLabel: input.buttonLabel,
+    footer: input.footer,
+  });
 
   if (status.provider === "resend") {
     try {

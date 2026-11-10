@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDrawSchema } from "./validation";
+import { createDrawSchema, feedbackSchema } from "./validation";
 
 const validPayload = {
   name: "Amic invisible feina",
@@ -142,5 +142,58 @@ describe("createDrawSchema", () => {
         name: "",
       }),
     ).toBe("Pon un nombre al sorteo.");
+  });
+});
+
+
+describe("feedbackSchema", () => {
+  it("accepts a complete feedback message", () => {
+    const result = feedbackSchema("ca").safeParse({
+      kind: "suggestion",
+      message: "M'agradaria poder eliminar un sorteig.",
+      email: "miguel@example.com",
+      page: "/ca/sortejos",
+      locale: "ca",
+      website: "",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("defaults kind and locale", () => {
+    const result = feedbackSchema("ca").safeParse({
+      message: "Una suggerència de prova",
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.kind).toBe("suggestion");
+      expect(result.data.locale).toBe("ca");
+    }
+  });
+
+  it("rejects short messages with the active locale", () => {
+    const result = feedbackSchema("es").safeParse({
+      message: "abc",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toContain("algo más");
+    }
+  });
+
+  it("rejects invalid feedback emails and pages", () => {
+    const emailResult = feedbackSchema("ca").safeParse({
+      message: "Missatge de prova",
+      email: "no-email",
+    });
+    expect(emailResult.success).toBe(false);
+
+    const pageResult = feedbackSchema("ca").safeParse({
+      message: "Missatge de prova",
+      page: "https://evil.example.com",
+    });
+    expect(pageResult.success).toBe(false);
   });
 });

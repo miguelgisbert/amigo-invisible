@@ -118,6 +118,29 @@ describe("sendEmail with Resend", () => {
     expect(body.html).toContain("https://example.com/r/token");
   });
 
+  it("supports custom internal email chrome", async () => {
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.EMAIL_FROM = "Test <test@example.com>";
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response("{}", { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await sendEmail({
+      ...payload(),
+      heading: "Nou feedback",
+      buttonLabel: "Obrir l'app",
+      footer: "Missatge intern",
+    });
+
+    expect(result).toEqual({ ok: true, provider: "resend" });
+    const options = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(options.body)) as { html: string };
+    expect(body.html).toContain("Nou feedback");
+    expect(body.html).toContain("Obrir l&#39;app");
+    expect(body.html).toContain("Missatge intern");
+  });
+
   it("returns the Resend error response", async () => {
     process.env.RESEND_API_KEY = "re_test";
     process.env.EMAIL_FROM = "Test <test@example.com>";

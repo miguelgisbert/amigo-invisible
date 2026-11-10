@@ -1,4 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { readFile } from "node:fs/promises";
 import { NextRequest } from "next/server";
 import postgres from "postgres";
@@ -15,6 +24,7 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 import { getSql } from "@/lib/db";
+import { createFeedback } from "@/lib/feedback";
 import {
   createDraw,
   getAdminDraw,
@@ -38,6 +48,7 @@ process.env.DATABASE_SSL = "disable";
 delete process.env.RESEND_API_KEY;
 delete process.env.SMTP_HOST;
 delete process.env.EMAIL_FROM;
+delete process.env.FEEDBACK_EMAIL;
 
 const sql = postgres(databaseUrl, {
   ssl: false,
@@ -81,9 +92,16 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await sql`
-    truncate table exclusions, participants, draws, sessions, users
+    truncate table feedback, exclusions, participants, draws, sessions, users
     restart identity cascade
   `;
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  delete process.env.RESEND_API_KEY;
+  delete process.env.EMAIL_FROM;
+  delete process.env.FEEDBACK_EMAIL;
 });
 
 afterAll(async () => {
@@ -359,6 +377,65 @@ describe("draws", () => {
     await expect(getAdminDraw("unknown-admin-token", "ca")).rejects.toBeInstanceOf(
       AppError,
     );
+  });
+
+  it("stores feedback with source metadata", async () => {
+    const id = await createFeedback({
+      kind: "suggestion",
+      message: "M'agrada molt l'eina, però voldria poder eliminar un sorteig.",
+      email: "feedback@example.com",
+      page: "/ca/sortejos",
+      locale: "ca",
+    });
+
+    const [row] = await sql<
+      Array<{
+        source: string;
+        kind: string;
+        message: string;
+        email: string;
+        page: string;
+        locale: string;
+      }>
+    >`select source, kind, message, email, page, locale from feedback where id = ${id}`;
+
+    expect(row.source).toBe("amigo-invisible");
+    expect(row.kind).toBe("suggestion");
+    expect(row.email).toBe("feedback@example.com");
+    expect(row.page).toBe("/ca/sortejos");
+    expect(row.locale).toBe("ca");
+    expect(row.message).toContain("eliminar");
+  });
+
+  it("notifies the feedback inbox with the app source", async () => {
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.EMAIL_FROM = "Test <test@example.com>";
+    process.env.FEEDBACK_EMAIL = "owner@example.com";
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response("{}", { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await createFeedback({
+      kind: "error",
+      message: "El botó de copiar no funciona en Safari.",
+      email: "reporter@example.com",
+      page: "/ca/r/token",
+      locale: "ca",
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.resend.com/emails");
+    const body = JSON.parse(String(options.body)) as {
+      to: string[];
+      subject: string;
+      text: string;
+    };
+    expect(body.to).toEqual(["owner@example.com"]);
+    expect(body.subject).toContain("[amigo-invisible]");
+    expect(body.text).toContain("Origen: amigo-invisible.miguelgisbert.dev");
+    expect(body.text).toContain("/ca/r/token");
   });
 
   it("localizes messages according to the draw locale", async () => {

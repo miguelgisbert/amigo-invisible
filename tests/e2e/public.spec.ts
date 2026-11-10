@@ -91,6 +91,22 @@ test.describe("public experience", () => {
     expect(scope).toContain("127.0.0.1:3101");
   });
 
+  test("feedback form submits a message", async ({ page }) => {
+    await page.goto("/ca");
+    await page.getByRole("button", { name: "Suggeriments" }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+
+    await page
+      .locator("#feedback-message")
+      .fill("M'agrada molt l'eina. Voldria poder eliminar un sorteig.");
+    await page.locator("#feedback-email").fill("feedback-e2e@example.com");
+    await page.getByRole("button", { name: "Envia" }).click();
+
+    await expect(page.getByText("Gràcies! Ho he rebut.")).toBeVisible();
+    await page.getByRole("button", { name: "Tanca" }).last().click();
+    await expect(page.getByRole("dialog")).toBeHidden();
+  });
+
   test("responsive layouts avoid horizontal overflow", async ({
     page,
   }, testInfo) => {

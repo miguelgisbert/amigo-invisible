@@ -55,3 +55,17 @@ create table if not exists exclusions (
   b_id uuid not null references participants(id) on delete cascade,
   primary key (draw_id, a_id, b_id)
 );
+
+
+create table if not exists feedback (
+  id uuid primary key,
+  source text not null default 'amigo-invisible',
+  kind text not null check (kind in ('error', 'suggestion', 'other')),
+  message text not null,
+  email text,
+  page text,
+  locale text not null check (locale in ('ca', 'es')),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists feedback_created_at_idx on feedback(created_at desc);

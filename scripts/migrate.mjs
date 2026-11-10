@@ -15,6 +15,7 @@ const sql = postgres(connectionString, {
   ssl: process.env.DATABASE_SSL === "disable" ? false : "require",
   max: 1,
   connect_timeout: 15,
+  onnotice: () => undefined,
 });
 
 try {

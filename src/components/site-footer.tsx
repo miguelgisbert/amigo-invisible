@@ -1,5 +1,6 @@
 "use client";
 
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 import { useI18n } from "@/components/i18n/locale-provider";
 import { cn } from "@/lib/cn";
 
@@ -33,22 +34,25 @@ export function SiteFooter({
           width === "narrow" ? "max-w-3xl" : "max-w-5xl",
         )}
       >
-        <p className="text-xs leading-5">
-          {dict.footer.copyright} · {dict.footer.madeBy}{" "}
-          <a
-            href="https://miguelgisbert.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              "font-semibold underline decoration-1 underline-offset-4 transition",
-              dark
-                ? "text-paper/85 hover:text-gold"
-                : "text-ink/75 hover:text-pine",
-            )}
-          >
-            {dict.footer.linkLabel}
-          </a>
-        </p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <p className="text-xs leading-5">
+            {dict.footer.copyright} · {dict.footer.madeBy}{" "}
+            <a
+              href="https://miguelgisbert.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "font-semibold underline decoration-1 underline-offset-4 transition",
+                dark
+                  ? "text-paper/85 hover:text-gold"
+                  : "text-ink/75 hover:text-pine",
+              )}
+            >
+              {dict.footer.linkLabel}
+            </a>
+          </p>
+          <FeedbackDialog tone={tone} />
+        </div>
 
         {note ? (
           <p className="max-w-sm text-xs leading-5">

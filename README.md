@@ -87,6 +87,14 @@ Per a producció, executa la migració contra la base de dades de producció aba
 DATABASE_URL="postgresql://..." npm run db:migrate
 ```
 
+## Feedback
+
+El peu de pàgina inclou un formulari ràpid de **Suggeriments** que desa els missatges a la taula `feedback` de Postgres amb el camp `source = 'amigo-invisible'`, la pàgina, l'idioma i el correu opcional.
+
+Si configureu `FEEDBACK_EMAIL`, s'enviarà una notificació per Resend/SMTP amb l'assumpte `[amigo-invisible] ...`. Si no, el missatge igualment queda desat a la base de dades.
+
+Si reutilitzeu la plantilla d'EmailJS de `miguelgisbert.dev` per a la web principal, passeu-hi una variable `source` (per exemple `miguelgisbert.dev` o `amigo-invisible`) i mostreu-la al template. El límit de EmailJS és per crear plantilles; podeu reutilitzar la que ja teniu.
+
 ## Correu electrònic
 
 El panell pot enviar el missatge automàticament si configures un proveïdor:
@@ -220,6 +228,7 @@ DATABASE_SSL=require
 NEXT_PUBLIC_APP_URL=https://elteudomini.vercel.app
 RESEND_API_KEY=...
 EMAIL_FROM=...
+FEEDBACK_EMAIL=...
 ```
 
 Si en algun moment el projecte passa a ser comercial, Vercel Hobby no és la modalitat correcta; caldria passar a Pro.

@@ -186,3 +186,40 @@ export const markSentSchema = z.object({
 export type CreateDrawInput = z.infer<ReturnType<typeof createDrawSchema>>;
 export type ResendInput = z.infer<typeof resendSchema>;
 export type MarkSentInput = z.infer<typeof markSentSchema>;
+
+export function feedbackSchema(locale: Locale) {
+  const feedback = getDictionary(locale).feedback;
+
+  const optionalEmail = z.preprocess(
+    emptyToNull,
+    z
+      .string()
+      .max(160, feedback.emailInvalid)
+      .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, feedback.emailInvalid)
+      .nullable(),
+  );
+
+  const optionalPage = z.preprocess(
+    emptyToNull,
+    z
+      .string()
+      .max(300, feedback.pageInvalid)
+      .regex(/^\//, feedback.pageInvalid)
+      .nullable(),
+  );
+
+  return z.object({
+    kind: z.enum(["error", "suggestion", "other"]).default("suggestion"),
+    message: z
+      .string()
+      .trim()
+      .min(5, feedback.messageShort)
+      .max(2000, feedback.messageLong),
+    email: optionalEmail,
+    page: optionalPage,
+    locale: z.enum(["ca", "es"]).default(locale),
+    website: z.string().max(200).optional().default(""),
+  });
+}
+
+export type FeedbackInput = z.infer<ReturnType<typeof feedbackSchema>>;
