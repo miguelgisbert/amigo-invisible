@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Brand } from "@/components/brand";
+import { SessionNav } from "@/components/auth/session-nav";
 import { RecentPanel } from "@/components/landing/recent-panel";
 import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
 import { useI18n } from "@/components/i18n/locale-provider";
@@ -18,11 +19,12 @@ export function LandingPage() {
       <header className="border-b border-ink/10">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
           <Brand />
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <span className="hidden text-xs font-medium text-ink/50 sm:inline">
               {copy.toolLabel}
             </span>
             <LocaleSwitcher />
+            <SessionNav />
           </div>
         </div>
       </header>

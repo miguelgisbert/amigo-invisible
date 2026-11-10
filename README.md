@@ -1,6 +1,6 @@
 # Amic invisible · Amigo invisible
 
-Aplicació web mòbil per organitzar sortejos d'amic invisible: configuració de l'esdeveniment, participants, exclusions, sorteig robust amb enllaços privats i enviament per WhatsApp o correu.
+Aplicació web mòbil per organitzar sortejos d'amic invisible: configuració de l'esdeveniment, participants, exclusions, sorteig robust amb enllaços privats, compte d'organitzador i enviament per WhatsApp o correu.
 
 Inclou català i castellà, detecció automàtica de l'idioma del navegador, PWA instal·lable i importació de contactes del telèfon als navegadors que ho permeten.
 
@@ -9,6 +9,12 @@ Inclou català i castellà, detecció automàtica de l'idioma del navegador, PWA
 ```bash
 npm install
 cp .env.example .env.local
+```
+
+Crea un projecte gratuït a [Neon](https://neon.com) (o qualsevol Postgres), copia la cadena de connexió a `DATABASE_URL` dins `.env.local` i executa:
+
+```bash
+npm run db:migrate
 npm run dev
 ```
 
@@ -16,9 +22,22 @@ Obre [http://localhost:3000](http://localhost:3000). L'aplicació et redirigirà
 
 Per provar el flux complet:
 
-1. Crea un sorteig a `/ca/crear` o `/es/crear`.
-2. Guarda l'enllaç del panell d'organitzador que es mostra en crear-lo.
-3. Des del panell, revisa els participants, envia missatges i marca'ls com enviats.
+1. Crea un compte a `/ca/registre` o `/es/registre`.
+2. Crea el sorteig.
+3. Torna-hi quan vulguis des de **Els meus sortejos** o des de l'enllaç del panell.
+4. Des del panell, revisa els participants, envia missatges i marca'ls com enviats.
+
+## Comptes i autenticació
+
+- Registre i accés amb correu i contrasenya.
+- Contrasenyes amb `scrypt` i sal aleatòria; mai es guarden en text pla.
+- Sessions amb token aleatori; a la base de dades només es guarda el hash SHA-256.
+- Cookie de sessió `HttpOnly`, `SameSite=Lax` i `Secure` en producció, amb 30 dies de validesa.
+- Cada sorteig guarda l'usuari que l'ha creat. El panell **Els meus sortejos** mostra tots els sortejos del compte.
+- L'enllaç privat del panell continua funcionant com a credencial directa, de manera que pots compartir-lo o recuperar-lo des del compte.
+- No es fa servir cap servei extern d'autenticació.
+
+Limitacions actuals de l'autenticació: no hi ha verificació de correu, recuperació de contrasenya ni rate limiting als endpoints d'accés. L'enllaç privat del panell continua donant accés directe sense login, per disseny.
 
 ## Idiomes
 
@@ -40,17 +59,33 @@ Per provar el flux complet:
 - Cada participant té un token aleatori de 24 bytes (`crypto.randomBytes`), generat al servidor.
 - El panell de l'organitzador té un token separat de 32 bytes.
 - L'enllaç privat és la credencial: no hi ha cap llistat públic d'emparellaments.
-- Els fitxers de dades es guarden amb permisos `0600` dins d'una carpeta `0700`.
+- Les contrasenyes es deriven amb `scrypt`; les sessions es guarden hashejades.
 - Els enllaços i les dades dels sortejos no s'indexen als cercadors.
 - El service worker no cacheja respostes de l'API ni pàgines amb tokens.
 
-## Emmagatzematge
+## Base de dades
 
-Les dades es guarden a `data/draws.json` (configurable amb `AMIGO_DATA_DIR`). El repositori inclou una capa d'accés serialitzada per evitar escriptures concurrents i fa servir escriptures atòmiques amb `rename`.
+La persistència és Postgres. L'esquema és a `db/schema.sql` i s'aplica amb:
 
-Per a un desplegament amb més volum, substitueix `src/lib/store.ts` per una base de dades real (Postgres, SQLite, Redis, etc.) mantenint la mateixa interfície `readDatabase` / `writeDatabase`.
+```bash
+npm run db:migrate
+```
 
-> **Important per a Vercel:** el sistema de fitxers de Vercel és efímer. Aquesta versió amb JSON funciona en local, VPS o plataformes amb disc persistent, però a Vercel les dades es perdran entre desplegaments i instàncies. Per a Vercel cal migrar a una base de dades gestionada (Neon/Vercel Postgres, Turso/libSQL o Redis).
+Taules principals:
+
+- `users`: comptes d'organitzador.
+- `sessions`: sessions autenticades.
+- `draws`: sortejos, propietari, idioma, configuració i token del panell.
+- `participants`: participants, telèfon, correu, token privat i assignació.
+- `exclusions`: regles mútues entre participants.
+
+Les integracions de Vercel Postgres/Neon poden exposar la connexió com a `POSTGRES_URL`; l'aplicació accepta qualsevol de les dues variables.
+
+Per a producció, executa la migració contra la base de dades de producció abans del primer desplegament:
+
+```bash
+DATABASE_URL="postgresql://..." npm run db:migrate
+```
 
 ## Correu electrònic
 
@@ -96,6 +131,7 @@ En obrir WhatsApp no es marca el missatge com enviat automàticament: el panell 
 npm run dev        # desenvolupament
 npm run build      # build de producció
 npm run start      # servidor de producció
+npm run db:migrate # aplica db/schema.sql
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 ```
@@ -106,20 +142,25 @@ npm run typecheck  # TypeScript
 
 ```bash
 git add .
-git commit -m "Amic invisible: app bilingüe, PWA i panell d'organitzador"
+git commit -m "Amic invisible: cuenta, Postgres, PWA y panel de organizador"
 git branch -M main
 
 # Amb GitHub CLI
-gh repo create amic-invisible --public --source=. --remote=origin --push
+gh repo create amigo-invisible --public --source=. --remote=origin --push
 
 # O manualment, després de crear el repositori buit a github.com
-git remote add origin git@github.com:EL_TEU_USUARI/amic-invisible.git
+git remote add origin git@github.com:EL_TEU_USUARI/amigo-invisible.git
 git push -u origin main
 ```
 
-### Vercel
+### Vercel + Neon
 
-Es pot importar el repositori des del dashboard de Vercel o amb:
+Vercel Hobby és gratuït per a projectes personals no comercials i permet fins a 200 projectes. Neon Free permet fins a 100 projectes, amb 1 GB d'emmagatzematge i 100 CU-hours per projecte i mes (límits de 2026; comprova’ls abans de desplegar). Per a aquesta eina gratuïta és suficient.
+
+1. Crea un projecte a Neon i copia la connexió pooled.
+2. Afig `DATABASE_URL` i `NEXT_PUBLIC_APP_URL` a Vercel.
+3. Executa la migració contra la base de dades de producció.
+4. Desplega:
 
 ```bash
 npm i -g vercel
@@ -130,38 +171,47 @@ vercel --prod
 Variables necessàries a Vercel:
 
 ```env
+DATABASE_URL=postgresql://...
+DATABASE_SSL=require
 NEXT_PUBLIC_APP_URL=https://elteudomini.vercel.app
 RESEND_API_KEY=...
 EMAIL_FROM=...
 ```
 
-**Recomanació:** per a aquesta versió amb emmagatzematge JSON, desplega a Railway, Render, Fly.io o un VPS amb un disc persistent. Si vols Vercel, primer cal migrar `src/lib/store.ts` a Neon/Vercel Postgres, Turso o Redis; si no, els sortejos no sobreviuran als desplegaments.
+Si en algun moment el projecte passa a ser comercial, Vercel Hobby no és la modalitat correcta; caldria passar a Pro.
 
 ## Estructura
 
 ```
+db/
+  schema.sql                 esquema Postgres
+scripts/
+  migrate.mjs                migració
 src/
   proxy.ts                   detecció i redirecció d'idioma
   app/
     manifest.ts              manifest PWA
     global-not-found.tsx     404 global bilingüe
     [locale]/
-      layout.tsx             html lang, fonts, provider i PWA
+      layout.tsx             html lang, fonts, providers i PWA
       page.tsx               landing
       crear/                 assistent de creació
+      entrar/ registre/      autenticació
+      sortejos/              Els meus sortejos
       admin/[adminToken]/    panell de l'organitzador
       r/[token]/             pàgina privada del participant
     api/
-      draws/                 crear sorteig i consultar-lo
-      draws/[adminToken]/    reenviar, marcar i tornar a sortejar
+      auth/                  registre, login, logout i sessió
+      draws/                 crear, consultar i gestionar sortejos
       reveal/[token]/        consultar un emparellament privat
   components/
-    admin/ create/ i18n/ landing/ pwa/ reveal/ ui/
+    admin/ auth/ create/ i18n/ landing/ pwa/ reveal/ ui/
   lib/
+    auth.ts                  contrasenyes i sessions
+    db.ts                    client Postgres
     i18n/                    config i diccionaris ca/es
     algorithm.ts             matching amb exclusions
-    draws.ts                 lògica de negoci
-    store.ts                 persistència atòmica
+    draws.ts                 lògica de negoci i consultes
     email.ts                 Resend + SMTP
     message.ts               plantilles i placeholders
     tokens.ts                tokens criptogràfics

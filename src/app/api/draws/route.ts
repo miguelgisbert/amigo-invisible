@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { requireUser } from "@/lib/auth";
 import { createDraw } from "@/lib/draws";
 import { errorResponse } from "@/lib/http";
 import { defaultLocale, resolveLocale, type Locale } from "@/lib/i18n/config";
@@ -12,8 +13,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     locale = resolveLocale(body.locale, request.headers.get("accept-language"));
     const input = createDrawSchema(locale).parse(body);
+    const user = await requireUser(request, locale);
     const baseUrl = getBaseUrl(request);
-    const draw = await createDraw(input, locale);
+    const draw = await createDraw(input, locale, user.id);
 
     return Response.json(
       {

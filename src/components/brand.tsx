@@ -44,12 +44,12 @@ export function Brand({
     <Link
       href={href ?? localeHref("/")}
       aria-label={`${dict.common.appName}, ${dict.common.home}`}
-      className={cn("inline-flex items-center gap-2.5", className)}
+      className={cn("inline-flex shrink-0 items-center gap-2.5", className)}
     >
       <BrandMark />
       <span
         className={cn(
-          "font-display text-[1.35rem] leading-none tracking-[-0.01em] sm:text-[1.4rem]",
+          "font-display text-[1.35rem] leading-none tracking-[-0.01em] whitespace-nowrap sm:text-[1.4rem]",
           tone === "paper" ? "text-paper" : "text-ink",
         )}
       >

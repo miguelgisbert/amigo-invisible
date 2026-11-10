@@ -34,8 +34,6 @@ yarn-error.log*
 .env*
 !.env.example
 
-# local draw data
-/data
 
 # vercel
 .vercel

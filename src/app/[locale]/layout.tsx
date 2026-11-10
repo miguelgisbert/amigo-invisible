@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Instrument_Sans, Instrument_Serif } from "next/font/google";
 import type { ReactNode } from "react";
+import { SessionProvider } from "@/components/auth/session-provider";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
 import { PwaRegister } from "@/components/pwa/pwa-register";
 import { defaultLocale, hasLocale, locales } from "@/lib/i18n/config";
@@ -100,8 +101,10 @@ export default async function LocaleLayout({
     >
       <body className="min-h-dvh font-sans antialiased" suppressHydrationWarning>
         <LocaleProvider key={rawLocale} initialLocale={rawLocale}>
-          <PwaRegister />
-          {children}
+          <SessionProvider>
+            <PwaRegister />
+            {children}
+          </SessionProvider>
         </LocaleProvider>
       </body>
     </html>

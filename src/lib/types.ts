@@ -20,6 +20,7 @@ export type ExclusionRecord = {
 
 export type DrawRecord = {
   id: string;
+  ownerId: string | null;
   adminToken: string;
   locale: Locale;
   name: string;
@@ -32,11 +33,6 @@ export type DrawRecord = {
   drawnAt: string | null;
   participants: ParticipantRecord[];
   exclusions: ExclusionRecord[];
-};
-
-export type Database = {
-  version: 1;
-  draws: DrawRecord[];
 };
 
 export type AssignmentView = {
@@ -79,6 +75,19 @@ export type AdminDrawView = {
     configured: boolean;
     provider: "resend" | "smtp" | "none";
   };
+};
+
+export type UserDrawSummary = {
+  id: string;
+  name: string;
+  locale: Locale;
+  eventDate: string | null;
+  eventTime: string | null;
+  location: string | null;
+  participantCount: number;
+  createdAt: string;
+  drawnAt: string | null;
+  adminUrl: string;
 };
 
 export type RevealView = {

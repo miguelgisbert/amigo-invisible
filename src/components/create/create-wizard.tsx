@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Brand } from "@/components/brand";
+import { AuthGate } from "@/components/auth/auth-gate";
+import { useSession } from "@/components/auth/session-provider";
 import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
 import { useI18n } from "@/components/i18n/locale-provider";
 import { SiteFooter } from "@/components/site-footer";
@@ -35,6 +37,7 @@ function hasAnyData(participant: ParticipantDraft): boolean {
 
 export function CreateWizard() {
   const router = useRouter();
+  const { user, loading: sessionLoading } = useSession();
   const { locale, dict, href } = useI18n();
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -365,6 +368,21 @@ export function CreateWizard() {
       );
       setSubmitting(false);
     }
+  }
+
+  if (sessionLoading) {
+    return (
+      <div className="min-h-dvh bg-paper">
+        <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
+          <div className="h-8 w-40 animate-pulse rounded-full bg-ink/5" />
+          <div className="mt-6 h-72 animate-pulse rounded-2xl bg-ink/5" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthGate />;
   }
 
   return (
