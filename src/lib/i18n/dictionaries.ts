@@ -334,6 +334,7 @@ const ca = {
       "Aquest enllaç és només per a tu. No el comparteixis: qui el tingui veurà el teu emparellament.",
     lostLink:
       "Si perds l'enllaç, demana'l a l'organitzador.",
+    createOwn: "Organitza el teu propi amic invisible",
     invalidTitle: "Aquest enllaç no és vàlid.",
     invalidBody:
       "Aquest enllaç no és vàlid o el sorteig ja no existeix.",
@@ -745,6 +746,7 @@ const es: typeof ca = {
     privacy:
       "Este enlace es solo para ti. No lo compartas: quien lo tenga verá tu emparejamiento.",
     lostLink: "Si pierdes el enlace, pídeselo al organizador.",
+    createOwn: "Organiza tu propio amigo invisible",
     invalidTitle: "Este enlace no es válido.",
     invalidBody: "Este enlace no es válido o el sorteo ya no existe.",
     loading: "Abriendo tu enlace…",

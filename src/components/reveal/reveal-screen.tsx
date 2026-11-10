@@ -262,15 +262,23 @@ export function RevealScreen({ token }: { token: string }) {
           </article>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center text-[0.7rem] text-paper/55">
-          <span>{dict.reveal.lostLink}</span>
+        <div className="mt-6 flex flex-col items-center gap-2 text-center text-[0.7rem] text-paper/55">
           <Link
-            href={href("/")}
-            className="inline-flex items-center gap-1.5 font-medium text-paper/65 hover:text-paper"
+            href={href("/crear")}
+            className="inline-flex items-center gap-1.5 font-semibold text-paper/80 underline decoration-1 underline-offset-4 transition hover:text-paper"
           >
-            {dict.common.appName}
+            {dict.reveal.createOwn}
             <ArrowRightIcon className="h-3 w-3" />
           </Link>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <span>{dict.reveal.lostLink}</span>
+            <Link
+              href={href("/")}
+              className="font-medium text-paper/60 hover:text-paper"
+            >
+              {dict.common.appName}
+            </Link>
+          </div>
         </div>
       </main>
 

@@ -235,6 +235,9 @@ test("complete organizer and participant flow", async ({
   await expect(
     page.getByRole("link", { name: "Afegeix al calendari" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Organitza el teu propi amic invisible" }),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Castellà" }).click();
   await expect(

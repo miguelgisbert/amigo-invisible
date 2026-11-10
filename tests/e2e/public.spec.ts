@@ -63,6 +63,18 @@ test.describe("public experience", () => {
       ),
     ).toBe(true);
 
+    const ogImage = await page
+      .locator('meta[property="og:image"]')
+      .getAttribute("content");
+    expect(ogImage).toContain("/og.png");
+
+    const jsonLd = await page
+      .locator('script[type="application/ld+json"]')
+      .first()
+      .textContent();
+    expect(jsonLd).toContain('"@type":"WebApplication"');
+    expect(jsonLd).toContain('"price":"0"');
+
     const iconResponse = await page.request.get("/icons/icon-512.png");
     expect(iconResponse.ok()).toBe(true);
     const swResponse = await page.request.get("/sw.js");

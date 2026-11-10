@@ -61,11 +61,20 @@ export async function generateMetadata({
       type: "website",
       locale: locale === "es" ? "es_ES" : "ca_ES",
       siteName: dict.common.appName,
+      images: [
+        {
+          url: locale === "es" ? "/og-es.png" : "/og.png",
+          width: 1200,
+          height: 630,
+          alt: dict.meta.title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: dict.meta.title,
       description: dict.meta.socialDescription,
+      images: [locale === "es" ? "/og-es.png" : "/og.png"],
     },
     robots: {
       index: true,
