@@ -10,6 +10,10 @@ import {
   XIcon,
 } from "@/components/icons";
 import { cn } from "@/lib/cn";
+import {
+  feedbackContactEmail,
+  sendFeedbackWithEmailJs,
+} from "@/lib/emailjs";
 
 type FeedbackKind = "error" | "suggestion" | "other";
 
@@ -107,6 +111,21 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
         throw new Error(payload?.error ?? copy.error);
       }
 
+      const emailResult = await sendFeedbackWithEmailJs({
+        kindLabel: copy.kinds[kind],
+        message,
+        email: email ?? user?.email ?? null,
+        page: window.location.pathname,
+        locale,
+        userName: user?.email ?? null,
+      });
+
+      if (!emailResult.ok) {
+        console.error("Feedback EmailJS failed:", emailResult.error);
+        setError(copy.notSent(feedbackContactEmail()));
+        return;
+      }
+
       setSent(true);
       setMessage("");
       setError(null);
@@ -124,14 +143,19 @@ export function FeedbackDialog({ tone = "light" }: { tone?: "dark" | "light" }) 
       <button
         type="button"
         onClick={openDialog}
+        aria-haspopup="dialog"
         className={cn(
-          "text-xs font-medium underline decoration-1 underline-offset-4 transition",
+          "mx-auto block max-w-3xl text-center text-lg leading-7 font-medium underline decoration-1 underline-offset-4 transition sm:text-xl",
           tone === "dark"
-            ? "text-paper/60 hover:text-paper"
-            : "text-ink/50 hover:text-ink",
+            ? "text-paper/85 hover:text-paper"
+            : "text-ink/80 hover:text-ink",
         )}
       >
-        {copy.trigger}
+        {copy.inviteA}{" "}
+        <strong>{copy.inviteError}</strong>
+        {copy.inviteJoin}
+        <strong>{copy.inviteSuggestion}</strong>
+        {copy.inviteEnd}
       </button>
 
       <dialog

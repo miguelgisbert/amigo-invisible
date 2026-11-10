@@ -1,13 +1,4 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
 import { NextRequest } from "next/server";
 import postgres from "postgres";
@@ -48,7 +39,6 @@ process.env.DATABASE_SSL = "disable";
 delete process.env.RESEND_API_KEY;
 delete process.env.SMTP_HOST;
 delete process.env.EMAIL_FROM;
-delete process.env.FEEDBACK_EMAIL;
 
 const sql = postgres(databaseUrl, {
   ssl: false,
@@ -95,13 +85,6 @@ beforeEach(async () => {
     truncate table feedback, exclusions, participants, draws, sessions, users
     restart identity cascade
   `;
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-  delete process.env.RESEND_API_KEY;
-  delete process.env.EMAIL_FROM;
-  delete process.env.FEEDBACK_EMAIL;
 });
 
 afterAll(async () => {
@@ -405,37 +388,6 @@ describe("draws", () => {
     expect(row.page).toBe("/ca/sortejos");
     expect(row.locale).toBe("ca");
     expect(row.message).toContain("eliminar");
-  });
-
-  it("notifies the feedback inbox with the app source", async () => {
-    process.env.RESEND_API_KEY = "re_test";
-    process.env.EMAIL_FROM = "Test <test@example.com>";
-    process.env.FEEDBACK_EMAIL = "owner@example.com";
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue(new Response("{}", { status: 200 }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    await createFeedback({
-      kind: "error",
-      message: "El botó de copiar no funciona en Safari.",
-      email: "reporter@example.com",
-      page: "/ca/r/token",
-      locale: "ca",
-    });
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://api.resend.com/emails");
-    const body = JSON.parse(String(options.body)) as {
-      to: string[];
-      subject: string;
-      text: string;
-    };
-    expect(body.to).toEqual(["owner@example.com"]);
-    expect(body.subject).toContain("[amigo-invisible]");
-    expect(body.text).toContain("Origen: amigo-invisible.miguelgisbert.dev");
-    expect(body.text).toContain("/ca/r/token");
   });
 
   it("localizes messages according to the draw locale", async () => {

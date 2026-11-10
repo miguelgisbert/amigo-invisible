@@ -61,14 +61,14 @@ test("complete organizer and participant flow", async ({
   ).toBeVisible();
 
   // Date picker: open, navigate months and choose today.
-  await page.locator('button[aria-haspopup="dialog"]').click();
+  await page.locator('#draw-date').click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "Mes següent" }).click();
   await page.getByRole("button", { name: "Mes anterior" }).click();
   await page.getByRole("button", { name: "Avui" }).click();
   await expect(page.getByRole("dialog")).toBeHidden();
   await expect(
-    page.locator('button[aria-haspopup="dialog"]'),
+    page.locator('#draw-date'),
   ).not.toContainText("Tria una data");
 
   await page.fill("#draw-name", drawName);

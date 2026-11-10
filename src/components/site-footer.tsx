@@ -19,22 +19,37 @@ export function SiteFooter({
   const dark = tone === "dark";
 
   return (
-    <footer
-      className={cn(
-        "px-5 py-8 sm:px-8",
-        dark
-          ? "bg-ink text-paper/65"
-          : "border-t border-ink/10 bg-paper text-ink/55",
-        className,
-      )}
-    >
-      <div
+    <div className={className}>
+      <section
         className={cn(
-          "mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
-          width === "narrow" ? "max-w-3xl" : "max-w-5xl",
+          "border-y px-5 py-8 sm:px-8 sm:py-10",
+          dark
+            ? "border-paper/10 bg-paper/5"
+            : "border-ink/10 bg-mint/45",
         )}
       >
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div
+          className={cn(
+            "mx-auto",
+            width === "narrow" ? "max-w-3xl" : "max-w-5xl",
+          )}
+        >
+          <FeedbackDialog tone={tone} />
+        </div>
+      </section>
+
+      <footer
+        className={cn(
+          "px-5 pt-6 pb-8 sm:px-8",
+          dark ? "bg-ink text-paper/65" : "bg-paper text-ink/55",
+        )}
+      >
+        <div
+          className={cn(
+            "mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+            width === "narrow" ? "max-w-3xl" : "max-w-5xl",
+          )}
+        >
           <p className="text-xs leading-5">
             {dict.footer.copyright} · {dict.footer.madeBy}{" "}
             <a
@@ -51,15 +66,14 @@ export function SiteFooter({
               {dict.footer.linkLabel}
             </a>
           </p>
-          <FeedbackDialog tone={tone} />
-        </div>
 
-        {note ? (
-          <p className="max-w-sm text-xs leading-5">
-            {dict.footer.serverNote}
-          </p>
-        ) : null}
-      </div>
-    </footer>
+          {note ? (
+            <p className="max-w-sm text-xs leading-5">
+              {dict.footer.serverNote}
+            </p>
+          ) : null}
+        </div>
+      </footer>
+    </div>
   );
 }

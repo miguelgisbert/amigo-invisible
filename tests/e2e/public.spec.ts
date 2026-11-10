@@ -91,9 +91,13 @@ test.describe("public experience", () => {
     expect(scope).toContain("127.0.0.1:3101");
   });
 
-  test("feedback form submits a message", async ({ page }) => {
+  test("feedback form shows an error when email is not configured", async ({
+    page,
+  }) => {
     await page.goto("/ca");
-    await page.getByRole("button", { name: "Suggeriments" }).click();
+    await page
+      .getByRole("button", { name: /Alguna errada o suggeriment/ })
+      .click();
     await expect(page.getByRole("dialog")).toBeVisible();
 
     await page
@@ -102,8 +106,10 @@ test.describe("public experience", () => {
     await page.locator("#feedback-email").fill("feedback-e2e@example.com");
     await page.getByRole("button", { name: "Envia" }).click();
 
-    await expect(page.getByText("Gràcies! Ho he rebut.")).toBeVisible();
-    await page.getByRole("button", { name: "Tanca" }).last().click();
+    await expect(
+      page.getByText("No s'ha pogut enviar la notificació"),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Tanca" }).click();
     await expect(page.getByRole("dialog")).toBeHidden();
   });
 

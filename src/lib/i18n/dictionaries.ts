@@ -97,7 +97,11 @@ const ca = {
     serverNote: "Les dades dels sortejos es queden al teu servidor.",
   },
   feedback: {
-    trigger: "Suggeriments",
+    inviteA: "Alguna",
+    inviteError: "errada",
+    inviteJoin: " o ",
+    inviteSuggestion: "suggeriment",
+    inviteEnd: "? Explica-m'ho!",
     title: "Alguna errada o suggeriment?",
     body: "Explica-m'ho i ho revisaré.",
     kindLabel: "Tipus",
@@ -111,6 +115,8 @@ const ca = {
     thanks: "Gràcies! Ho he rebut.",
     close: "Tanca",
     error: "No s'ha pogut enviar. Torna-ho a provar.",
+    notSent: (contact: string) =>
+      `No s'ha pogut enviar la notificació. El missatge s'ha desat; si vols, escriu-me directament a ${contact}.`,
     messageShort: "Escriu una mica més de text.",
     messageLong: "El missatge és massa llarg.",
     emailInvalid: "El correu no sembla vàlid.",
@@ -534,7 +540,11 @@ const es: typeof ca = {
     serverNote: "Los datos de los sorteos se quedan en tu servidor.",
   },
   feedback: {
-    trigger: "Sugerencias",
+    inviteA: "¿Algún",
+    inviteError: "error",
+    inviteJoin: " o ",
+    inviteSuggestion: "sugerencia",
+    inviteEnd: "? ¡Cuéntamelo!",
     title: "¿Algún error o sugerencia?",
     body: "Cuéntamelo y lo revisaré.",
     kindLabel: "Tipo",
@@ -548,6 +558,8 @@ const es: typeof ca = {
     thanks: "¡Gracias! Lo he recibido.",
     close: "Cerrar",
     error: "No se ha podido enviar. Vuelve a intentarlo.",
+    notSent: (contact: string) =>
+      `No se ha podido enviar la notificación. El mensaje se ha guardado; si quieres, escríbeme directamente a ${contact}.`,
     messageShort: "Escribe algo más de texto.",
     messageLong: "El mensaje es demasiado largo.",
     emailInvalid: "El correo no parece válido.",

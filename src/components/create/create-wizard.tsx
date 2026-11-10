@@ -473,7 +473,7 @@ export function CreateWizard() {
             tone="light"
             note={false}
             width="narrow"
-            className="mt-16 border-t border-ink/10"
+            className="mt-16"
           />
         </div>
       </main>
